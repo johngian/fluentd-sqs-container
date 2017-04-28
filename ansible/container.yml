@@ -1,0 +1,11 @@
+version: "2"
+settings:
+  save_conductor_container: true
+  conductor_base: centos:7
+services:
+  fluentd:
+    from: centos:7
+    roles:
+    - mozilla.fluentd
+    user: root
+registries: {}

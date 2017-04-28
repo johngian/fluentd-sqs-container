@@ -1,0 +1,54 @@
+---
+#
+# user-configurable defaults
+#
+# Uncomment the ones you need
+tdagent_plugins:
+  - fluent-plugin-record-modifier # for transformation of event data into something useful
+  - fluent-plugin-multi-format-parser # for multiple formats
+  - fluent-plugin-grep # filter plugin
+  - fluent-plugin-sqs #for aws
+#  - fluent-plugin-amqp # for rabbitmq
+#  - fluent-plugin-rewrite-tag-filter # useful for splitting a stream into separate filters
+#  - fluent-plugin-sns # for aws accounts outside of infosec
+
+#tdagentconf_variables
+
+# For most purposes tail will be used
+input_type: tail
+# Enter the path to the log or multiple logs [log1,log2] you wish to parse
+# For Ubuntu: /var/log/auth.log and /var/log/syslog
+# For Centos: /var/log/messages and /var/log/secure
+centos_logs: '/var/log/messages, /var/log/secure'
+ubuntu_logs: '/var/log/auth.log, /var/log/syslog'
+# List variable for ACL tasks
+centos_log_paths:
+  - /var/log/messages
+  - /var/log/secure
+ubuntu_log_paths:
+  - /var/log/auth.log
+  - /var/log/syslog
+# Locate of pos file that won't get removed on restart.
+pos_file: /etc/td-agent/syslog.pos
+# How often to poll for events, setting this to 0 can cause high  resource consumption
+refresh_rate: 5s
+# Filter plugin we will use to prep events for mozdef ingestion
+filter_type: record_modifier
+# Event Tag which tells fluentd what to filter on
+event_tag: syslog
+# Set to false if your queue is already created
+createq: false
+# Set what you'd like the queue name to be - it must be relevant
+# The following hostgroups have a queue already created in infosec-prod:us-west-2
+# riskheatmap: rhm-fluentd-sqs observatory: obs-fluentd-sqs
+queue_name: obs-fluentd-sqs
+# The output plugin you intend to use, SQS in this case
+output_type: sqs
+# if using sqs, the endpoint you are sending to - comment this if not in use
+sqs_endpoint: sqs.us-west-2.amazonaws.com
+
+tdagent_conf_template: templates/td-agent.conf.j2
+
+#---- the following vars are handled in tasks/set-role-variables.yml ------
+
+tdagent_use_service:       False      # use "service" command to start/restart fluentd?

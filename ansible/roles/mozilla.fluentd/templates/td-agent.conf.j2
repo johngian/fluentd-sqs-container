@@ -1,0 +1,50 @@
+#
+# Simple default td-agent.conf
+# For more details, see http://docs.fluentd.org/articles/config-file
+#
+
+# Tail system event logs
+# @see http://docs.fluentd.org/articles/in_tail
+
+<source>
+  @type {{ input_type }}
+{% if ansible_distribution == "Ubuntu" %}
+  path {{ ubuntu_logs }}
+{% else %}
+  path {{ centos_logs }}
+{% endif %}
+  pos_file {{ pos_file }}
+  tag {{ event_tag }}
+  keep_time_key true
+  refresh_interval 5s
+# Multi-Format Parsing
+  format multi_format
+  # Pattern #1: Entries without PID with regexp
+    format /^(?<time>[^ ]*\s*[^ ]*\s*\d+:\d+:\d+)*\s*(?<host>[^\s]*)\s*(?<ident>[^\s\[]*):\s*(?<message>.*)$/
+  # Pattern #2: Entries with PID with regexp
+    format /^(?<time>[^ ]*\s*[^ ]*\s*\d+:\d+:\d+)*\s*(?<host>[^\s]*)\s*(?<ident>[^\[:]*)(?<pid>[^:\s]*):\s*(?<message>.*)$/
+</source>
+
+# Filter input
+# For event transformation into something we can use
+<filter {{ event_tag }}>
+   @type {{ filter_type }}
+   remove_keys host,ident,message,pid
+   <record>
+     timestamp ${DateTime.now.to_s}
+     hostname "#{Socket.gethostname}"
+     pname ${record['ident']}
+     processid ${record['pid']}
+     type syslog
+     logger systemslogs
+     payload ${record['message']}
+   </record>
+</filter>
+
+
+<match {{ event_tag }}>
+  @type {{ output_type }}
+  queue_name "#{ENV['SQS_QUEUE']}"
+  sqs_endpoint {{ sqs_endpoint }}
+  delay_seconds 20
+</match>
