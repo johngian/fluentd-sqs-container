@@ -8,11 +8,7 @@
 
 <source>
   @type {{ input_type }}
-{% if ansible_distribution == "Ubuntu" %}
-  path {{ ubuntu_logs }}
-{% else %}
-  path {{ centos_logs }}
-{% endif %}
+  path /srv/logs/*
   pos_file {{ pos_file }}
   tag {{ event_tag }}
   keep_time_key true
@@ -44,7 +40,6 @@
 
 <match {{ event_tag }}>
   @type {{ output_type }}
-  queue_name "#{ENV['SQS_QUEUE']}"
-  sqs_endpoint {{ sqs_endpoint }}
-  delay_seconds 20
+  sns_topic_name "#{ENV['SNS_TOPIC']}"
+  sns_endpoint "#{ENV['SNS_ENDPOINT']}"
 </match>

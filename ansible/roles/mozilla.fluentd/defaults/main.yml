@@ -7,10 +7,10 @@ tdagent_plugins:
   - fluent-plugin-record-modifier # for transformation of event data into something useful
   - fluent-plugin-multi-format-parser # for multiple formats
   - fluent-plugin-grep # filter plugin
-  - fluent-plugin-sqs #for aws
+#  - fluent-plugin-sqs #for aws
 #  - fluent-plugin-amqp # for rabbitmq
 #  - fluent-plugin-rewrite-tag-filter # useful for splitting a stream into separate filters
-#  - fluent-plugin-sns # for aws accounts outside of infosec
+  - fluent-plugin-sns # for aws accounts outside of infosec
 
 #tdagentconf_variables
 
@@ -43,9 +43,8 @@ createq: false
 # riskheatmap: rhm-fluentd-sqs observatory: obs-fluentd-sqs
 queue_name: obs-fluentd-sqs
 # The output plugin you intend to use, SQS in this case
-output_type: sqs
+output_type: sns
 # if using sqs, the endpoint you are sending to - comment this if not in use
-sqs_endpoint: sqs.us-west-2.amazonaws.com
 
 tdagent_conf_template: templates/td-agent.conf.j2
 

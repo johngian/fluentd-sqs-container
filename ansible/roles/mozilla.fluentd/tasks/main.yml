@@ -16,6 +16,11 @@
   include: use-yum.yml
   when: ansible_pkg_mgr == "yum"
 
+- name: create log mountpoint
+  file:
+    path: /srv/logs
+    state: directory
+
 - name: rename default td-agent.conf
   command: creates="/etc/td-agent/td-agent.conf.bak" mv /etc/td-agent/td-agent.conf /etc/td-agent/td-agent.conf.bak
 
